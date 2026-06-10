@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KenG Portfolio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif; background: #07100d; color: #f7f3e8; }
+    .wrap { width: min(980px, 100%); margin: auto; padding: 28px 18px 64px; }
+    .hero { border: 1px solid rgba(217,180,95,.28); border-radius: 28px; padding: clamp(28px, 6vw, 60px); background: #10251d; }
+    h1 { font-size: clamp(36px, 8vw, 72px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -.06em; }
+    p { color: #b8c7bf; line-height: 1.9; font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-top: 28px; }
+    .card { background: #fffaf0; color: #17201b; border-radius: 22px; padding: 22px; }
+    .card p { color: #5f6d64; }
+    a { color: #d9b45f; }
+    .back { display: inline-flex; margin-bottom: 18px; color: #d9b45f; text-decoration: none; font-weight: 800; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="index.html">← ツール起動ページへ戻る</a>
+    <section class="hero">
+      <h1>KenG Portfolio</h1>
+      <p>美容師視点を持つ写真・映像クリエイターとして、プロフィール撮影、ポートレート、旅・観光コンテンツ、SNSショート動画、ブランディング撮影に対応します。</p>
+      <p>このページはポートフォリオ情報の仮置きです。今後、作品、実績、料金、問い合わせ導線を整理して拡張します。</p>
+    </section>
+    <main class="grid">
+      <article class="card"><h2>Photo</h2><p>プロフィール、宣材、ポートレート、店舗撮影。</p></article>
+      <article class="card"><h2>Movie</h2><p>SNSショート動画、MV、イベント、旅コンテンツ。</p></article>
+      <article class="card"><h2>Hair Stylist Perspective</h2><p>髪、表情、清潔感、見え方まで整える撮影設計。</p></article>
+    </main>
+  </div>
+</body>
+</html>
