@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ARK 業務委託 歩合計算機</title>
+  <style>
+:root {
+  --bg: #f5f1ea;
+  --card: #fffdf8;
+  --ink: #1f2420;
+  --muted: #6d746d;
+  --line: #ded6ca;
+  --accent: #2f5d46;
+  --accent-soft: #e4efe8;
+  --warning-bg: #fff6ed;
+  --warning-ink: #8a3a2b;
+  --good-bg: #eef8f0;
+  --good-ink: #28533b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  background: linear-gradient(135deg, #f7f4ee 0%, #edf3ee 100%);
+  color: var(--ink);
+}
+
+.app {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.hero { padding: 28px 0 18px; }
+.eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .08em; margin: 0 0 8px; }
+h1, h2 { margin: 0; line-height: 1.25; }
+h1 { font-size: clamp(28px, 6vw, 52px); letter-spacing: -0.04em; }
+h2 { font-size: 22px; margin-bottom: 18px; }
+p { margin: 0; }
+.lead, .section-head p { color: var(--muted); font-size: 15px; line-height: 1.8; max-width: 780px; }
+
+.grid { display: grid; gap: 18px; }
+.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.compact { gap: 12px; }
+
+.card {
+  background: rgba(255, 253, 248, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 18px 50px rgba(31, 36, 32, 0.08);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; font-weight: 700; }
+
+input, textarea, select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 14px;
+  font: inherit;
+  color: var(--ink);
+  background: white;
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+input[readonly] { color: var(--muted); background: #f8f5ee; }
+
+button {
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent);
+  color: white;
+  padding: 13px 20px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+button:hover { filter: brightness(1.04); }
+button.ghost, .remove-menu { background: #ebe4d8; color: var(--ink); }
+.remove-menu { width: 100%; }
+
+.rate-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.rate-table span { color: var(--muted); font-weight: 800; font-size: 13px; }
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(5, 1fr) 92px;
+  gap: 10px;
+  align-items: center;
+}
+.menu-header { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+.menu-row { margin-bottom: 10px; }
+
+.result-main { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+.result-main.three { grid-template-columns: repeat(3, 1fr); }
+.result-main div { background: var(--accent-soft); border-radius: 18px; padding: 16px; }
+.result-main span { display: block; color: var(--muted); font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+.result-main strong { font-size: clamp(22px, 4vw, 36px); letter-spacing: -0.04em; }
+
+.table-wrap { width: 100%; overflow-x: auto; border-radius: 16px; }
+table { width: 100%; min-width: 560px; border-collapse: collapse; overflow: hidden; }
+th, td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--line); vertical-align: top; }
+th:first-child, td:first-child { text-align: left; color: var(--muted); }
+th { font-size: 12px; color: var(--muted); background: #faf7f0; }
+
+.notice { margin-top: 16px; padding: 14px; border-radius: 16px; background: var(--warning-bg); color: var(--warning-ink); line-height: 1.7; font-size: 14px; white-space: pre-line; }
+.notice.good { background: var(--good-bg); color: var(--good-ink); }
+textarea { min-height: 320px; resize: vertical; line-height: 1.7; }
+
+@media (max-width: 980px) {
+  .grid.two, .result-main, .result-main.three { grid-template-columns: 1fr; }
+  .menu-grid { grid-template-columns: 1fr 1fr; }
+  .menu-header { display: none; }
+  .section-head { display: grid; }
+  .section-head button, .toolbar button { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  .app { padding: 16px 12px 44px; }
+  .card { padding: 16px; border-radius: 20px; }
+  th, td { font-size: 12px; padding: 9px 5px; }
+  .rate-table { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body { background: white; }
+  .app { width: 100%; padding: 0; }
+  .card { box-shadow: none; break-inside: avoid; }
+  .no-print, button { display: none !important; }
+  textarea { min-height: 220px; }
+}
+
+
+
+/* iPhone Safari / touch usability */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { overscroll-behavior-y: contain; }
+input, textarea, select { font-size: 16px; min-height: 46px; }
+button { min-height: 46px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.app-status { color: var(--muted); font-size: 13px; font-weight: 700; line-height: 1.6; margin: 0; flex: 1 1 260px; }
+.app-status.error { color: var(--warning-ink); }
+.table-wrap { -webkit-overflow-scrolling: touch; }
+.menu-inputs { display: grid; gap: 10px; }
+
+@media (max-width: 980px) {
+  .toolbar { position: sticky; top: 0; z-index: 5; backdrop-filter: blur(10px); }
+  .menu-row { padding: 12px; border: 1px solid var(--line); border-radius: 18px; background: #fffdf8; }
+}
+
+@media (max-width: 520px) {
+  h1 { font-size: clamp(26px, 10vw, 40px); }
+  button { width: 100%; }
+  textarea { min-height: 260px; }
+}
+
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">ARK Commission Calculator v3 / single-file</p>
+      <h1>業務委託・材料費・クーポン損益計算機</h1>
+      <p class="lead">税込/税抜、指名/フリー歩合、複数メニュー、材料費、アシスタント人件費、集客手数料、月間想定まで一括で比較します。</p>
+    </header>
+
+    <section class="toolbar card no-print" aria-label="操作メニュー">
+      <button type="button" id="addMenu">メニュー追加</button>
+      <button type="button" id="exportCsv">CSV出力</button>
+      <button type="button" id="printPdf">PDF保存/印刷</button>
+      <button type="button" id="resetData" class="ghost">初期値に戻す</button>
+      <p id="appStatus" class="app-status" role="status" aria-live="polite">入力内容はこの端末のブラウザ内だけに保存されます。</p>
+    </section>
+
+    <section class="grid two">
+      <form class="card" id="calculatorForm">
+        <h2>基本設定</h2>
+
+        <div class="grid two compact">
+          <label>1日の施術人数
+            <input id="clientsPerDay" type="number" inputmode="decimal" value="4" min="0" step="0.5" />
+          </label>
+          <label>月の稼働日数
+            <input id="workDays" type="number" inputmode="decimal" value="22" min="0" step="0.5" />
+          </label>
+        </div>
+
+        <div class="grid two compact">
+          <label>消費税率（%）
+            <input id="taxRate" type="number" inputmode="decimal" value="10" min="0" max="30" step="0.1" />
+          </label>
+          <label>報酬計算の基準
+            <select id="commissionBase">
+              <option value="gross">税込売上ベース</option>
+              <option value="net" selected>税抜売上ベース</option>
+              <option value="profit">材料費控除後利益ベース</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid two compact">
+          <label>ロング料金
+            <input id="longFee" type="number" inputmode="decimal" value="550" min="0" step="50" />
+          </label>
+          <label>ロング率（%）
+            <input id="longRate" type="number" inputmode="decimal" value="30" min="0" max="100" step="1" />
+          </label>
+        </div>
+
+        <div class="grid two compact">
+          <label>アシスタント人件費/1名
+            <input id="assistantCost" type="number" inputmode="decimal" value="0" min="0" step="100" />
+          </label>
+          <label>集客手数料率（%）
+            <input id="portalFeeRate" type="number" inputmode="decimal" value="0" min="0" max="100" step="0.1" />
+          </label>
+        </div>
+      </form>
+
+      <section class="card">
+        <h2>指名/フリー歩合</h2>
+        <div class="grid two compact">
+          <label>指名比率（%）
+            <input id="designatedRatio" type="number" inputmode="decimal" value="70" min="0" max="100" step="1" />
+          </label>
+          <label>フリー比率（自動）
+            <input id="freeRatioDisplay" type="text" value="30%" readonly />
+          </label>
+        </div>
+
+        <div class="rate-table" aria-label="歩合率設定">
+          <div></div><strong>通常</strong><strong>クーポン</strong>
+          <span>指名歩合</span><input id="regularDesignatedRate" type="number" value="50" min="0" max="100" step="0.1" /><input id="couponDesignatedRate" type="number" value="45" min="0" max="100" step="0.1" />
+          <span>フリー歩合</span><input id="regularFreeRate" type="number" value="45" min="0" max="100" step="0.1" /><input id="couponFreeRate" type="number" value="40" min="0" max="100" step="0.1" />
+        </div>
+      </section>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <h2>メニュー別設定</h2>
+          <p>構成比の合計は自動補正します。未入力や不正値は0として安全処理します。iPhoneでは横に長い表は左右にスクロールできます。</p>
+        </div>
+      </div>
+
+      <div class="menu-grid menu-header" aria-hidden="true">
+        <strong>メニュー</strong><strong>通常税込</strong><strong>クーポン税込</strong><strong>材料費</strong><strong>その他経費</strong><strong>構成比%</strong><strong>操作</strong>
+      </div>
+      <div id="menuInputs" class="menu-inputs"></div>
+    </section>
+
+    <section class="grid two">
+      <section class="card results">
+        <h2>結果</h2>
+        <div class="result-main three">
+          <div><span>クーポン時の自分の報酬/1名</span><strong id="couponPay">¥0</strong></div>
+          <div><span>クーポン時のサロン側残額/1名</span><strong id="couponSalon">¥0</strong></div>
+          <div><span>月間の自分の報酬</span><strong id="monthlyPay">¥0</strong></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>項目</th><th>通常</th><th>クーポン</th></tr></thead>
+            <tbody id="comparisonBody"></tbody>
+          </table>
+        </div>
+
+        <div class="notice" id="riskComment"></div>
+        <div class="notice good" id="validationComment"></div>
+      </section>
+
+      <section class="card">
+        <h2>メニュー別内訳</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>メニュー</th><th>構成</th><th>通常報酬</th><th>クーポン報酬</th><th>サロン残額</th></tr></thead>
+            <tbody id="menuBreakdownBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <h2>オーナー説明用まとめ</h2>
+          <p>LINEやNotionにそのまま貼れる文章です。</p>
+        </div>
+        <button type="button" id="copySummary">コピー</button>
+      </div>
+      <textarea id="summaryText" readonly></textarea>
+    </section>
+  </main>
+
+  <script>
+(() => {
+'use strict';
+const yen = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', maximumFractionDigits: 0 });
+const pct = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 1 });
+const STORAGE_KEY = 'arkCommissionCalculatorV3';
+
+const defaultState = {
+  settings: {
+    clientsPerDay: 4,
+    workDays: 22,
+    taxRate: 10,
+    commissionBase: 'net',
+    longFee: 550,
+    longRate: 30,
+    assistantCost: 0,
+    portalFeeRate: 0,
+    designatedRatio: 70,
+    regularDesignatedRate: 50,
+    couponDesignatedRate: 45,
+    regularFreeRate: 45,
+    couponFreeRate: 40
+  },
+  menus: [
+    { name: 'カット+カラー+3stepオージュア', regular: 15400, coupon: 12100, material: 2500, other: 0, mix: 55 },
+    { name: 'カット', regular: 5500, coupon: 4950, material: 300, other: 0, mix: 20 },
+    { name: 'カラー単品', regular: 8800, coupon: 7700, material: 2200, other: 0, mix: 15 },
+    { name: '縮毛/髪質改善', regular: 22000, coupon: 18700, material: 4500, other: 0, mix: 10 }
+  ]
+};
+
+const ids = [
+  'clientsPerDay', 'workDays', 'taxRate', 'commissionBase', 'longFee', 'longRate',
+  'assistantCost', 'portalFeeRate', 'designatedRatio', 'freeRatioDisplay',
+  'regularDesignatedRate', 'couponDesignatedRate', 'regularFreeRate', 'couponFreeRate'
+];
+
+const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+const menuInputs = document.getElementById('menuInputs');
+const comparisonBody = document.getElementById('comparisonBody');
+const menuBreakdownBody = document.getElementById('menuBreakdownBody');
+const couponPay = document.getElementById('couponPay');
+const couponSalon = document.getElementById('couponSalon');
+const monthlyPay = document.getElementById('monthlyPay');
+const riskComment = document.getElementById('riskComment');
+const validationComment = document.getElementById('validationComment');
+const summaryText = document.getElementById('summaryText');
+const copySummary = document.getElementById('copySummary');
+const addMenu = document.getElementById('addMenu');
+const exportCsv = document.getElementById('exportCsv');
+const printPdf = document.getElementById('printPdf');
+const resetData = document.getElementById('resetData');
+const appStatus = document.getElementById('appStatus');
+
+let state = loadState();
+let lastCsv = '';
+
+function setStatus(message, isError = false) {
+  if (!appStatus) return;
+  appStatus.textContent = message;
+  appStatus.classList.toggle('error', isError);
+}
+
+function reportError(error, fallbackMessage) {
+  console.error(error);
+  setStatus(fallbackMessage || '処理中にエラーが発生しました。入力値を確認してもう一度お試しください。', true);
+}
+
+function requireElements() {
+  const required = [menuInputs, comparisonBody, menuBreakdownBody, couponPay, couponSalon, monthlyPay, riskComment, validationComment, summaryText, copySummary, addMenu, exportCsv, printPdf, resetData];
+  const missing = required.filter((node) => !node);
+  if (missing.length) throw new Error(`必要な画面部品が見つかりません: ${missing.length}件`);
+}
+
+function safeUpdate() {
+  try {
+    update();
+  } catch (error) {
+    reportError(error, '計算を更新できませんでした。入力値を確認してください。');
+  }
+}
+
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function clamp(value, min = 0, max = Number.POSITIVE_INFINITY) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, n));
+}
+
+function money(value) {
+  return yen.format(Math.round(clamp(value, -999999999, 999999999)));
+}
+
+function percent(value) {
+  return `${pct.format(clamp(value, -999, 999))}%`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[char]));
+}
+
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return clone(defaultState);
+    const parsed = JSON.parse(saved);
+    return {
+      settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+      menus: Array.isArray(parsed.menus) && parsed.menus.length ? parsed.menus : clone(defaultState.menus)
+    };
+  } catch {
+    return clone(defaultState);
+  }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (error) { reportError(error, 'このブラウザでは入力内容を保存できません。計算は続けられます。'); }
+}
+
+function applyStateToInputs() {
+  Object.entries(state.settings).forEach(([key, value]) => {
+    if (!el[key]) return;
+    el[key].value = value;
+  });
+}
+
+function readSettings() {
+  state.settings = {
+    clientsPerDay: clamp(el.clientsPerDay.value),
+    workDays: clamp(el.workDays.value),
+    taxRate: clamp(el.taxRate.value, 0, 30),
+    commissionBase: el.commissionBase.value,
+    longFee: clamp(el.longFee.value),
+    longRate: clamp(el.longRate.value, 0, 100),
+    assistantCost: clamp(el.assistantCost.value),
+    portalFeeRate: clamp(el.portalFeeRate.value, 0, 100),
+    designatedRatio: clamp(el.designatedRatio.value, 0, 100),
+    regularDesignatedRate: clamp(el.regularDesignatedRate.value, 0, 100),
+    couponDesignatedRate: clamp(el.couponDesignatedRate.value, 0, 100),
+    regularFreeRate: clamp(el.regularFreeRate.value, 0, 100),
+    couponFreeRate: clamp(el.couponFreeRate.value, 0, 100)
+  };
+}
+
+function readMenus() {
+  const rows = [...menuInputs.querySelectorAll('.menu-row')].map((row) => ({
+    name: row.querySelector('[data-field="name"]')?.value.trim() || '未設定メニュー',
+    regular: clamp(row.querySelector('[data-field="regular"]')?.value),
+    coupon: clamp(row.querySelector('[data-field="coupon"]')?.value),
+    material: clamp(row.querySelector('[data-field="material"]')?.value),
+    other: clamp(row.querySelector('[data-field="other"]')?.value),
+    mix: clamp(row.querySelector('[data-field="mix"]')?.value)
+  }));
+  state.menus = rows.length ? rows : clone(defaultState.menus);
+}
+
+function weightedRate(type) {
+  const designated = state.settings.designatedRatio;
+  const free = 100 - designated;
+  const dRate = type === 'regular' ? state.settings.regularDesignatedRate : state.settings.couponDesignatedRate;
+  const fRate = type === 'regular' ? state.settings.regularFreeRate : state.settings.couponFreeRate;
+  return (dRate * designated + fRate * free) / 100;
+}
+
+function normalizeMix(items) {
+  const active = items.filter((item) => item.regular > 0 || item.coupon > 0 || item.mix > 0);
+  const target = active.length ? active : clone(defaultState.menus);
+  const total = target.reduce((sum, item) => sum + clamp(item.mix), 0);
+  const fallback = target.length ? 1 / target.length : 1;
+  return target.map((item) => ({ ...item, normalizedMix: total > 0 ? clamp(item.mix) / total : fallback }));
+}
+
+function toNet(gross) {
+  return gross / (1 + state.settings.taxRate / 100);
+}
+
+function calcMenu(item, type) {
+  const rate = weightedRate(type);
+  const grossBase = type === 'regular' ? item.regular : item.coupon;
+  const longAverage = state.settings.longFee * (state.settings.longRate / 100);
+  const gross = grossBase + longAverage;
+  const net = toNet(gross);
+  const portalFee = gross * (state.settings.portalFeeRate / 100);
+  const costs = item.material + item.other + state.settings.assistantCost + portalFee;
+  const profitBase = net - costs;
+
+  let commissionTarget = gross;
+  if (state.settings.commissionBase === 'net') commissionTarget = net;
+  if (state.settings.commissionBase === 'profit') commissionTarget = Math.max(0, profitBase);
+
+  const pay = Math.round(Math.max(0, commissionTarget * (rate / 100)));
+  const salonAfterCosts = Math.round(net - costs - pay);
+
+  return { gross, net, costs, profitBase, pay, salonAfterCosts, rate, portalFee };
+}
+
+function aggregate(type, menus) {
+  return menus.reduce((acc, item) => {
+    const result = calcMenu(item, type);
+    const w = item.normalizedMix;
+    acc.gross += result.gross * w;
+    acc.net += result.net * w;
+    acc.costs += result.costs * w;
+    acc.profitBase += result.profitBase * w;
+    acc.pay += result.pay * w;
+    acc.salonAfterCosts += result.salonAfterCosts * w;
+    acc.rate += result.rate * w;
+    return acc;
+  }, { gross: 0, net: 0, costs: 0, profitBase: 0, pay: 0, salonAfterCosts: 0, rate: 0 });
+}
+
+function row(label, regular, couponValue) {
+  return `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(regular)}</td><td>${escapeHtml(couponValue)}</td></tr>`;
+}
+
+function renderMenus() {
+  menuInputs.innerHTML = state.menus.map((item, index) => `
+    <div class="menu-grid menu-row" data-index="${index}">
+      <input data-field="name" type="text" value="${escapeHtml(item.name)}" aria-label="メニュー名" />
+      <input data-field="regular" type="number" value="${clamp(item.regular)}" min="0" step="100" aria-label="通常税込" />
+      <input data-field="coupon" type="number" value="${clamp(item.coupon)}" min="0" step="100" aria-label="クーポン税込" />
+      <input data-field="material" type="number" value="${clamp(item.material)}" min="0" step="100" aria-label="材料費" />
+      <input data-field="other" type="number" value="${clamp(item.other)}" min="0" step="100" aria-label="その他経費" />
+      <input data-field="mix" type="number" value="${clamp(item.mix)}" min="0" step="1" aria-label="構成比" />
+      <button type="button" class="remove-menu" data-remove="${index}" aria-label="このメニューを削除">削除</button>
+    </div>
+  `).join('');
+
+  menuInputs.querySelectorAll('input').forEach((input) => input.addEventListener('input', safeUpdate));
+  menuInputs.querySelectorAll('[data-remove]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (state.menus.length <= 1) {
+        setStatus('メニューは最低1行必要です。');
+        return;
+      }
+      readSettings();
+      readMenus();
+      state.menus.splice(Number(button.dataset.remove), 1);
+      renderMenus();
+      safeUpdate();
+    });
+  });
+}
+
+function buildCsv(menus, regular, coupon) {
+  const lines = [
+    ['種別', '項目', '通常', 'クーポン'].map(csvEscape).join(','),
+    ['全体', '平均税込売上', Math.round(regular.gross), Math.round(coupon.gross)].map(csvEscape).join(','),
+    ['全体', '平均税抜売上', Math.round(regular.net), Math.round(coupon.net)].map(csvEscape).join(','),
+    ['全体', '経費合計', Math.round(regular.costs), Math.round(coupon.costs)].map(csvEscape).join(','),
+    ['全体', '自分の報酬/1名', Math.round(regular.pay), Math.round(coupon.pay)].map(csvEscape).join(','),
+    ['全体', 'サロン側残額/1名', Math.round(regular.salonAfterCosts), Math.round(coupon.salonAfterCosts)].map(csvEscape).join(','),
+    '',
+    ['メニュー', '構成比%', '通常報酬', 'クーポン報酬', 'クーポンサロン残額'].map(csvEscape).join(',')
+  ];
+
+  menus.forEach((item) => {
+    const r = calcMenu(item, 'regular');
+    const c = calcMenu(item, 'coupon');
+    lines.push([item.name, pct.format(item.normalizedMix * 100), Math.round(r.pay), Math.round(c.pay), Math.round(c.salonAfterCosts)].map(csvEscape).join(','));
+  });
+
+  return lines.join('\n');
+}
+
+function downloadCsv() {
+  try {
+    if (!lastCsv) safeUpdate();
+    const blob = new Blob([`\uFEFF${lastCsv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ark-commission-simulation.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setStatus('CSVを出力しました。iPhoneではダウンロード一覧またはファイルAppを確認してください。');
+  } catch (error) {
+    reportError(error, 'CSVを出力できませんでした。コピー用文章をご利用ください。');
+  }
+}
+
+function validate(menus, coupon) {
+  const warnings = [];
+  const totalMix = state.menus.reduce((sum, item) => sum + clamp(item.mix), 0);
+  if (Math.abs(totalMix - 100) > 0.01) warnings.push(`構成比の合計は${pct.format(totalMix)}%です。計算上は自動補正しています。`);
+  if (state.settings.commissionBase === 'gross') warnings.push('税込売上ベースは見た目の報酬が高く出やすいです。税抜売上ベースとの比較を推奨します。');
+  if (menus.some((item) => item.coupon > item.regular && item.regular > 0)) warnings.push('クーポン価格が通常価格を上回るメニューがあります。入力ミスの可能性があります。');
+  if (coupon.salonAfterCosts < 0) warnings.push('クーポン時のサロン側残額がマイナスです。条件再設計が必要です。');
+  if (!warnings.length) warnings.push('入力値に大きな不整合は見つかりません。交渉用のたたき台として使えます。');
+  return warnings.join('\n');
+}
+
+function update() {
+  readSettings();
+  readMenus();
+  saveState();
+
+  el.freeRatioDisplay.value = percent(100 - state.settings.designatedRatio);
+
+  const menus = normalizeMix(state.menus);
+  const regular = aggregate('regular', menus);
+  const coupon = aggregate('coupon', menus);
+  const clients = state.settings.clientsPerDay;
+  const days = state.settings.workDays;
+
+  couponPay.textContent = money(coupon.pay);
+  couponSalon.textContent = money(coupon.salonAfterCosts);
+  monthlyPay.textContent = money(coupon.pay * clients * days);
+
+  comparisonBody.innerHTML = [
+    row('平均税込売上', money(regular.gross), money(coupon.gross)),
+    row('平均税抜売上', money(regular.net), money(coupon.net)),
+    row('材料費+経費+人件費+手数料', money(regular.costs), money(coupon.costs)),
+    row('材料費控除後の利益', money(regular.profitBase), money(coupon.profitBase)),
+    row('平均歩合率', percent(regular.rate), percent(coupon.rate)),
+    row('自分の報酬/1名', money(regular.pay), money(coupon.pay)),
+    row('サロン側残額/1名', money(regular.salonAfterCosts), money(coupon.salonAfterCosts)),
+    row('1日売上', money(regular.gross * clients), money(coupon.gross * clients)),
+    row('1日自分報酬', money(regular.pay * clients), money(coupon.pay * clients)),
+    row('月間売上', money(regular.gross * clients * days), money(coupon.gross * clients * days)),
+    row('月間自分報酬', money(regular.pay * clients * days), money(coupon.pay * clients * days))
+  ].join('');
+
+  menuBreakdownBody.innerHTML = menus.map((item) => {
+    const r = calcMenu(item, 'regular');
+    const c = calcMenu(item, 'coupon');
+    return `<tr><td>${escapeHtml(item.name)}</td><td>${percent(item.normalizedMix * 100)}</td><td>${money(r.pay)}</td><td>${money(c.pay)}</td><td>${money(c.salonAfterCosts)}</td></tr>`;
+  }).join('');
+
+  const discount = regular.gross - coupon.gross;
+  const payDiff = regular.pay - coupon.pay;
+  const thinProfit = coupon.salonAfterCosts > 0 && coupon.salonAfterCosts < coupon.net * 0.12;
+
+  riskComment.textContent = coupon.salonAfterCosts < 0
+    ? '注意：クーポン設定では、税抜売上から経費と報酬を引いたサロン側残額がマイナスです。価格、材料費、歩合率、手数料、アシスタント人件費の再調整が必要です。'
+    : thinProfit
+      ? '注意：クーポン設定のサロン側残額がかなり薄いです。集客目的の限定クーポンとして扱うか、歩合率・対象メニュー・期間を分ける方が安全です。'
+      : `通常と比べた平均値引き差は${money(discount)}、自分の報酬差は${money(payDiff)}です。材料費控除後のサロン側残額も残っているため、交渉のたたき台として使えます。`;
+
+  validationComment.textContent = validate(menus, coupon);
+
+  const baseLabel = el.commissionBase.options[el.commissionBase.selectedIndex].textContent;
+  summaryText.value = [
+    '【ARK業務委託シミュレーション】',
+    '',
+    `報酬計算の基準：${baseLabel}`,
+    `消費税率：${state.settings.taxRate}%`,
+    `指名比率：${state.settings.designatedRatio}% / フリー比率：${100 - state.settings.designatedRatio}%`,
+    `集客手数料率：${state.settings.portalFeeRate}%`,
+    `アシスタント人件費/1名：${money(state.settings.assistantCost)}`,
+    '',
+    '■ 平均値',
+    `通常の平均税込売上：${money(regular.gross)}`,
+    `クーポンの平均税込売上：${money(coupon.gross)}`,
+    `通常の自分の報酬/1名：${money(regular.pay)}`,
+    `クーポンの自分の報酬/1名：${money(coupon.pay)}`,
+    `通常のサロン側残額/1名：${money(regular.salonAfterCosts)}`,
+    `クーポンのサロン側残額/1名：${money(coupon.salonAfterCosts)}`,
+    '',
+    '■ 月間想定',
+    `1日の施術人数：${clients}人`,
+    `月の稼働日数：${days}日`,
+    `通常の月間自分報酬：${money(regular.pay * clients * days)}`,
+    `クーポンの月間自分報酬：${money(coupon.pay * clients * days)}`,
+    '',
+    '■ 交渉ポイント',
+    'クーポンは集客効果がある一方、材料費・手数料・人件費を引くとサロン側利益が薄くなりやすいです。',
+    '通常料金とクーポン料金で同じ歩合にするのではなく、対象メニュー・期間・歩合率を分けて設計する方が公平です。',
+    '指名/フリー比率によって実質歩合率が変わるため、指名売上と新規集客クーポンは別管理にしたいです。'
+  ].join('\n');
+
+  lastCsv = buildCsv(menus, regular, coupon);
+}
+
+function init() {
+  try {
+    requireElements();
+    applyStateToInputs();
+  renderMenus();
+
+  ids.forEach((id) => {
+    const node = el[id];
+    if (!node || id === 'freeRatioDisplay') return;
+    node.addEventListener('input', safeUpdate);
+    node.addEventListener('change', safeUpdate);
+  });
+
+  addMenu.addEventListener('click', () => {
+    readSettings();
+    readMenus();
+    state.menus.push({ name: '新規メニュー', regular: 0, coupon: 0, material: 0, other: 0, mix: 0 });
+    renderMenus();
+    safeUpdate();
+  });
+
+  exportCsv.addEventListener('click', downloadCsv);
+  printPdf.addEventListener('click', () => window.print());
+  resetData.addEventListener('click', () => {
+    if (!confirm('入力内容を初期値に戻しますか？')) return;
+    state = clone(defaultState);
+    saveState();
+    applyStateToInputs();
+    renderMenus();
+    safeUpdate();
+  });
+
+  copySummary.addEventListener('click', async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(summaryText.value);
+      } else {
+        summaryText.focus();
+        summaryText.select();
+        const copied = document.execCommand('copy');
+        if (!copied) throw new Error('execCommand copy failed');
+      }
+      copySummary.textContent = 'コピーしました';
+      setStatus('説明用まとめをコピーしました。');
+    } catch (error) {
+      reportError(error, '自動コピーできませんでした。文章欄を長押しして手動コピーしてください。');
+      summaryText.focus();
+      summaryText.select();
+    }
+    setTimeout(() => { copySummary.textContent = 'コピー'; }, 1400);
+  });
+
+  safeUpdate();
+  setStatus('準備完了：入力すると自動計算します。');
+  } catch (error) {
+    reportError(error, '初期化に失敗しました。HTMLファイルを再読み込みしてください。');
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+
+  </script>
+</body>
+</html>
