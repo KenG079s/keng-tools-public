@@ -2,6 +2,10 @@
 
 KenGが作成した業務ツールとポートフォリオの公開用静的HTMLサイトです。
 
+## 公開URL
+
+https://keng079s.github.io/keng-tools-public/
+
 ## 開くページ
 
 - `index.html`: 共有用トップページ
