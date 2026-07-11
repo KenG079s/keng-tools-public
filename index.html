@@ -4,262 +4,40 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="KenGが作成した業務ツールとポートフォリオを、iPhone Safariからすぐ開ける共有用トップページです。" />
+  <meta name="theme-color" content="#2f5d46" />
   <title>KenG Tools｜共有用トップ</title>
   <style>
-    :root {
-      --bg: #f7f8f4;
-      --panel: #fffefa;
-      --ink: #202420;
-      --muted: #626b61;
-      --line: #d8ded4;
-      --accent: #2f5d46;
-      --accent-dark: #213f31;
-      --accent-soft: #e4efe8;
-      --warm: #fff7ec;
-    }
-
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
-      background: linear-gradient(145deg, #faf8f2 0%, #eef4f0 100%);
-      color: var(--ink);
-    }
-
-    a { color: inherit; }
-
-    .app {
-      width: min(880px, 100%);
-      margin: 0 auto;
-      padding: 20px 14px 48px;
-    }
-
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 0 18px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      font-weight: 900;
-    }
-
-    .mark {
-      display: grid;
-      place-items: center;
-      width: 38px;
-      height: 38px;
-      flex: 0 0 auto;
-      border-radius: 8px;
-      background: var(--accent);
-      color: white;
-      letter-spacing: 0;
-    }
-
-    .brand span:last-child { overflow-wrap: anywhere; }
-
-    .hero { padding: 24px 0 18px; }
-
-    .eyebrow {
-      margin: 0 0 10px;
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: .08em;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 8vw, 52px);
-      line-height: 1.16;
-      letter-spacing: 0;
-    }
-
-    .lead {
-      max-width: 720px;
-      margin: 14px 0 0;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.8;
-    }
-
-    .tool-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 22px;
-    }
-
-    .tool-card {
-      display: grid;
-      gap: 16px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 254, 250, .96);
-      box-shadow: 0 14px 32px rgba(31, 36, 32, .08);
-    }
-
-    .tool-card h2 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.35;
-      letter-spacing: 0;
-    }
-
-    .tool-card p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      line-height: 1.75;
-      font-size: 15px;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 30px;
-      padding: 5px 9px;
-      border-radius: 8px;
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .actions {
-      display: grid;
-      gap: 10px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 54px;
-      padding: 14px 16px;
-      border-radius: 8px;
-      background: var(--accent);
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 900;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .button.secondary {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--accent-dark);
-    }
-
-    .button:focus-visible {
-      outline: 3px solid rgba(47, 93, 70, .36);
-      outline-offset: 3px;
-    }
-
-    .note {
-      margin-top: 16px;
-      padding: 14px;
-      border: 1px solid #ecd7bd;
-      border-radius: 8px;
-      background: var(--warm);
-      color: #6f4a23;
-      line-height: 1.75;
-      font-size: 14px;
-    }
-
-    .footer {
-      margin-top: 28px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    @media (min-width: 760px) {
-      .app { padding: 28px 20px 60px; }
-      .tool-card {
-        grid-template-columns: minmax(0, 1fr) 260px;
-        align-items: center;
-        padding: 22px;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .top { align-items: flex-start; }
-      .tool-card { padding: 16px; }
-      .button { width: 100%; }
-    }
+    :root{--panel:#fffefa;--ink:#202420;--muted:#626b61;--line:#d8ded4;--accent:#2f5d46;--accent-dark:#213f31;--accent-soft:#e4efe8;--warm:#fff7ec}
+    *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;background:linear-gradient(145deg,#faf8f2,#eef4f0);color:var(--ink)}
+    .app{width:min(880px,100%);margin:0 auto;padding:20px 14px 48px}.brand{display:flex;align-items:center;gap:10px;padding:8px 0 18px;font-weight:900}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;background:var(--accent);color:#fff}.hero{padding:24px 0 18px}.eyebrow{margin:0 0 10px;color:var(--accent);font-size:13px;font-weight:900;letter-spacing:.08em}h1{margin:0;font-size:clamp(30px,8vw,52px);line-height:1.16}.lead{max-width:720px;margin:14px 0 0;color:var(--muted);font-size:16px;line-height:1.8}
+    .list{display:grid;gap:14px;margin-top:22px}.card{display:grid;gap:16px;padding:18px;border:1px solid var(--line);border-radius:12px;background:rgba(255,254,250,.96);box-shadow:0 14px 32px rgba(31,36,32,.08)}.card h2{margin:0;font-size:22px}.card p{margin:6px 0 0;color:var(--muted);line-height:1.75;font-size:15px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tag{display:inline-flex;align-items:center;min-height:30px;padding:5px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:12px;font-weight:900}.actions{display:grid;gap:10px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:14px 16px;border-radius:10px;background:var(--accent);color:#fff;text-align:center;text-decoration:none;font-size:16px;font-weight:900}.button.secondary{border:1px solid var(--line);background:var(--panel);color:var(--accent-dark)}.note{margin-top:16px;padding:14px;border:1px solid #ecd7bd;border-radius:10px;background:var(--warm);color:#6f4a23;line-height:1.75;font-size:14px}.footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.7}
+    @media(min-width:760px){.app{padding:28px 20px 60px}.card{grid-template-columns:minmax(0,1fr) 260px;align-items:center;padding:22px}}@media(max-width:520px){.button{width:100%}}
   </style>
 </head>
 <body>
-  <main class="app">
-    <nav class="top" aria-label="ページ上部">
-      <div class="brand">
-        <span class="mark">KG</span>
-        <span>KenG Tools</span>
-      </div>
-    </nav>
-
-    <header class="hero">
-      <p class="eyebrow">PUBLIC TOOL LAUNCHER / iPhone Safari</p>
-      <h1>必要なものを、すぐ開ける入口。</h1>
-      <p class="lead">これまで作成したツールとページを、日常で使いやすいようにまとめた共有用トップです。リンクを開くだけで使えます。</p>
-    </header>
-
-    <section class="tool-list" aria-label="公開用リンク一覧">
-      <article class="tool-card">
-        <div>
-          <h2>ARK歩合計算機</h2>
-          <p>業務委託の報酬、材料費、クーポン損益、月間想定を概算できます。</p>
-          <div class="meta" aria-label="特徴">
-            <span class="tag">1ファイルHTML</span>
-            <span class="tag">iPhone対応</span>
-            <span class="tag">コピー対応</span>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="button" href="tools/ark-commission-calculator.html">ARK歩合計算機を開く</a>
-        </div>
-      </article>
-
-      <article class="tool-card">
-        <div>
-          <h2>KenG Portfolio</h2>
-          <p>写真・動画・美容師視点のポートフォリオページです。</p>
-          <div class="meta" aria-label="特徴">
-            <span class="tag">撮影事業</span>
-            <span class="tag">共有用ページ</span>
-          </div>
-        </div>
-        <div class="actions">
-          <a class="button secondary" href="portfolio.html">ポートフォリオを見る</a>
-        </div>
-      </article>
-    </section>
-
-    <p class="note">この入口ページでは、個人情報・顧客情報・認証情報の入力や保存、自動ログイン、自動投稿、外部サイトの自動取得は行いません。</p>
-
-    <footer class="footer">
-      <p>KenG Codex Tools / no npm / no build step / single-file HTML first</p>
-    </footer>
-  </main>
+<main class="app">
+  <nav class="brand" aria-label="ページ上部"><span class="mark">KG</span><span>KenG Tools</span></nav>
+  <header class="hero">
+    <p class="eyebrow">PUBLIC TOOL LAUNCHER / iPhone Safari</p>
+    <h1>必要なものを、すぐ開ける入口。</h1>
+    <p class="lead">業務ツール、iPhone整理ナビ、ポートフォリオをまとめた公開用トップです。Safariからそのまま使えます。</p>
+  </header>
+  <section class="list" aria-label="公開用リンク一覧">
+    <article class="card">
+      <div><h2>iPhone整理ナビ</h2><p>ストレージ容量と削減候補を計算し、安全な順番で整理を進めます。進捗は端末内だけに保存されます。</p><div class="tags"><span class="tag">iPhone対応</span><span class="tag">安全確認</span><span class="tag">自動計算</span></div></div>
+      <div class="actions"><a class="button" href="tools/iphone-storage-organizer.html">iPhone整理を始める</a></div>
+    </article>
+    <article class="card">
+      <div><h2>ARK歩合計算機</h2><p>業務委託の報酬、材料費、クーポン損益、月間想定を概算できます。</p><div class="tags"><span class="tag">1ファイルHTML</span><span class="tag">iPhone対応</span><span class="tag">コピー対応</span></div></div>
+      <div class="actions"><a class="button secondary" href="tools/ark-commission-calculator.html">ARK歩合計算機を開く</a></div>
+    </article>
+    <article class="card">
+      <div><h2>KenG Portfolio</h2><p>写真・動画・美容師視点のポートフォリオページです。</p><div class="tags"><span class="tag">撮影事業</span><span class="tag">共有用ページ</span></div></div>
+      <div class="actions"><a class="button secondary" href="portfolio.html">ポートフォリオを見る</a></div>
+    </article>
+  </section>
+  <p class="note">このサイトは個人情報・顧客情報・認証情報を送信せず、自動ログイン・自動投稿・iPhone内データの自動削除も行いません。</p>
+  <footer class="footer">KenG Tools / static HTML / no build step</footer>
+</main>
 </body>
 </html>
