@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="iPhoneのストレージ整理を、安全性と削減効果の順に進める端末内完結ツールです。" />
+  <meta name="theme-color" content="#2f5d46" />
+  <title>iPhone整理ナビ｜KenG Tools</title>
+  <style>
+    :root{--bg:#f4f7f3;--panel:#fffefa;--ink:#202520;--muted:#667066;--line:#d4ddd2;--accent:#2f5d46;--soft:#e6f0e9;--warn:#76501e;--warnbg:#fff5e5;--danger:#8a3030;--shadow:0 14px 32px rgba(31,36,32,.08)}
+    *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:linear-gradient(145deg,#faf9f4,#edf3ef);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+    button,input{font:inherit}.app{width:min(860px,100%);margin:auto;padding:max(18px,env(safe-area-inset-top)) 14px max(48px,env(safe-area-inset-bottom))}.back{display:inline-flex;min-height:44px;align-items:center;color:var(--accent);font-weight:800;text-decoration:none}
+    h1{margin:12px 0 0;font-size:clamp(32px,9vw,50px);line-height:1.1}.lead{color:var(--muted);line-height:1.75}.alert{padding:14px;border:1px solid #ead4ae;border-radius:12px;background:var(--warnbg);color:var(--warn);line-height:1.7}
+    .summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.card,.section{border:1px solid var(--line);border-radius:14px;background:rgba(255,254,250,.97);box-shadow:var(--shadow)}.card{padding:14px}.card span{display:block;color:var(--muted);font-size:12px;font-weight:800}.card strong{display:block;margin-top:5px;font-size:25px}
+    .section{margin-top:16px;padding:16px}.section h2{margin:0;font-size:21px}.hint{color:var(--muted);font-size:14px;line-height:1.65}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:grid;gap:6px;color:var(--muted);font-size:13px;font-weight:800}.field input{width:100%;min-height:48px;padding:10px 12px;border:1px solid #c8d1c5;border-radius:10px;background:#fff;font-size:16px}
+    .rows{display:grid;gap:10px;margin-top:12px}.row{display:grid;grid-template-columns:minmax(0,1fr) 110px 110px;gap:8px;align-items:end;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}.row strong{display:block}.row small{color:var(--muted);line-height:1.45}.bar{height:14px;margin-top:12px;overflow:hidden;border-radius:999px;background:#e4eae2}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f5d46,#7aa184);transition:.2s}
+    .checklist{display:grid;gap:9px}.check{display:grid;grid-template-columns:28px 1fr;gap:9px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}.check input{width:24px;height:24px;margin:1px 0;accent-color:var(--accent)}.check.done{background:var(--soft)}.check.done strong{text-decoration:line-through}.check p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.55}
+    .actions{display:grid;gap:9px;margin-top:12px}.btn{min-height:50px;border:0;border-radius:10px;padding:12px 14px;background:var(--accent);color:#fff;font-weight:900}.btn.secondary{background:#fff;color:var(--accent);border:1px solid var(--line)}.btn.danger{background:#fff0f0;color:var(--danger);border:1px solid #efcaca}.result{margin-top:12px;padding:13px;border:1px solid #bfd4c5;border-radius:12px;background:var(--soft);line-height:1.7}.footer{margin-top:20px;color:var(--muted);font-size:12px;text-align:center;line-height:1.6}
+    @media(min-width:720px){.summary{grid-template-columns:repeat(4,1fr)}.actions{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr 1fr}.row>div:first-child{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <a class="back" href="../index.html">← KenG Tools</a>
+  <header>
+    <h1>iPhone整理ナビ</h1>
+    <p class="lead">容量の大きい項目から、削除事故を避けて整理するための実行画面です。数値と進捗はこのブラウザ内だけに保存されます。</p>
+    <div class="alert"><strong>重要：</strong>このページはiPhone内を直接読み取ったり削除したりしません。写真・Lightroom・LINEは、同期やバックアップを確認してからiPhone側で削除してください。</div>
+  </header>
+
+  <section class="summary" aria-label="ストレージ概要">
+    <div class="card"><span>使用中</span><strong id="usedSummary">485.7 GB</strong></div>
+    <div class="card"><span>現在の空き</span><strong id="freeSummary">538.3 GB</strong></div>
+    <div class="card"><span>削減見込み</span><strong id="gainSummary">0 GB</strong></div>
+    <div class="card"><span>整理後の空き</span><strong id="afterSummary">538.3 GB</strong></div>
+  </section>
+
+  <section class="section">
+    <h2>1. 現在の容量</h2>
+    <p class="hint">設定 → 一般 → iPhoneストレージの数字に合わせて更新してください。初期値は以前のスクリーンショットを基準にしています。</p>
+    <div class="grid">
+      <label class="field">総容量（GB）<input id="total" type="number" min="1" step="0.1" value="1024"></label>
+      <label class="field">使用中（GB）<input id="used" type="number" min="0" step="0.1" value="485.7"></label>
+    </div>
+    <div class="bar"><span id="bar"></span></div>
+  </section>
+
+  <section class="section">
+    <h2>2. 削減候補</h2>
+    <p class="hint">「削減予定」は実際に消す予定の容量だけを入力してください。0GBなら計算に含めません。</p>
+    <div class="rows" id="rows"></div>
+    <div class="actions">
+      <button class="btn" id="save" type="button">保存・再計算</button>
+      <button class="btn secondary" id="current" type="button">初期値を反映</button>
+      <button class="btn danger" id="reset" type="button">進捗をリセット</button>
+    </div>
+    <div class="result" id="result">削減予定を入力すると、整理後の空き容量を計算します。</div>
+  </section>
+
+  <section class="section">
+    <h2>3. 安全な実行順</h2>
+    <div class="checklist" id="checklist"></div>
+  </section>
+
+  <section class="section">
+    <h2>4. 今回の優先順位</h2>
+    <ol class="hint" style="padding-left:20px;line-height:1.8">
+      <li>使っていない大容量アプリを削除または「Appを取り除く」</li>
+      <li>LINEのキャッシュ、不要ファイル、再取得可能な動画を整理</li>
+      <li>Lightroomの同期完了を確認し、ローカルキャッシュのみ削除</li>
+      <li>写真・動画はバックアップ確認後に整理し、「最近削除した項目」も確認</li>
+    </ol>
+  </section>
+
+  <p class="footer">KenG Tools / browser-only / no upload / no automatic deletion</p>
+</main>
+<script>
+(() => {
+  const defaults = [
+    {name:'PUBG MOBILE', size:35, gain:0, note:'遊ばない場合は削除候補。再ダウンロード可否とアカウント連携を確認。'},
+    {name:'LINE', size:25, gain:10, note:'トーク削除ではなく、まずキャッシュ・不要な写真・動画・ファイルを整理。'},
+    {name:'Lightroom', size:23, gain:12, note:'クラウド同期完了を確認し、元データではなくローカルキャッシュを削除。'},
+    {name:'写真', size:24, gain:5, note:'iCloudまたはMac/SSDへの退避を確認。最近削除した項目の完全削除に注意。'},
+    {name:'トルミル等', size:24, gain:15, note:'ダウンロード済み動画やキャッシュを優先。必要ファイルは先に退避。'}
+  ];
+  const steps = [
+    ['iPhoneの現在のストレージ画面を確認','設定 → 一般 → iPhoneストレージを開き、数値を上に入力する。'],
+    ['写真とLightroomの同期状態を確認','未同期・処理中・クラウドのみのデータがないか確認する。'],
+    ['LINEのトーク履歴をバックアップ','必要な会話がある場合はバックアップ完了を確認する。'],
+    ['大容量アプリから整理','再取得可能なアプリ、ダウンロード済み動画、キャッシュを先に削減する。'],
+    ['写真・動画を最後に整理','Macやクラウドへの退避を確認後、不要データだけ削除する。'],
+    ['整理後に再起動して容量を再確認','表示更新に時間がかかる場合があるため、再起動後に確認する。']
+  ];
+  const $ = id => document.getElementById(id);
+  const stateKey = 'keng-iphone-storage-v1';
+  let state;
+  try { state = JSON.parse(localStorage.getItem(stateKey)) || {}; } catch { state = {}; }
+  let apps = Array.isArray(state.apps) ? state.apps : defaults.map(x => ({...x}));
+  let checked = Array.isArray(state.checked) ? state.checked : steps.map(() => false);
+  $('total').value = state.total ?? 1024;
+  $('used').value = state.used ?? 485.7;
+
+  function renderRows(){
+    $('rows').innerHTML = apps.map((a,i) => `
+      <div class="row">
+        <div><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(a.note)}</small></div>
+        <label class="field">現在（GB）<input data-i="${i}" data-k="size" type="number" min="0" step="0.1" value="${a.size}"></label>
+        <label class="field">削減予定（GB）<input data-i="${i}" data-k="gain" type="number" min="0" step="0.1" value="${a.gain}"></label>
+      </div>`).join('');
+  }
+  function renderChecks(){
+    $('checklist').innerHTML = steps.map((s,i)=>`<label class="check ${checked[i]?'done':''}"><input type="checkbox" data-check="${i}" ${checked[i]?'checked':''}><span><strong>${s[0]}</strong><p>${s[1]}</p></span></label>`).join('');
+  }
+  function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function readRows(){document.querySelectorAll('[data-i]').forEach(el=>{apps[+el.dataset.i][el.dataset.k]=Math.max(0,Number(el.value)||0);});}
+  function calculate(){
+    readRows();
+    const total=Math.max(1,Number($('total').value)||1024), used=Math.min(total,Math.max(0,Number($('used').value)||0));
+    const gain=Math.min(used,apps.reduce((s,a)=>s+Math.min(a.size,a.gain),0));
+    const free=Math.max(0,total-used), after=Math.min(total,free+gain);
+    $('usedSummary').textContent=`${used.toFixed(1)} GB`; $('freeSummary').textContent=`${free.toFixed(1)} GB`; $('gainSummary').textContent=`${gain.toFixed(1)} GB`; $('afterSummary').textContent=`${after.toFixed(1)} GB`; $('bar').style.width=`${Math.min(100,used/total*100)}%`;
+    $('result').innerHTML=`削減見込みは <strong>${gain.toFixed(1)}GB</strong>、整理後の空きは <strong>${after.toFixed(1)}GB</strong> です。実際の解放量はiOSのキャッシュ再計算で前後します。`;
+    return {total,used};
+  }
+  function save(){const x=calculate();localStorage.setItem(stateKey,JSON.stringify({apps,checked,total:x.total,used:x.used}));}
+  document.addEventListener('change',e=>{if(e.target.matches('[data-check]')){checked[+e.target.dataset.check]=e.target.checked;renderChecks();save();}});
+  $('save').addEventListener('click',save);
+  $('current').addEventListener('click',()=>{apps=defaults.map(x=>({...x}));$('total').value=1024;$('used').value=485.7;renderRows();save();});
+  $('reset').addEventListener('click',()=>{if(confirm('保存した数値と進捗を初期状態に戻しますか？')){localStorage.removeItem(stateKey);location.reload();}});
+  renderRows();renderChecks();calculate();
+})();
+</script>
+</body>
+</html>
