@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Hot Pepper Beautyの投稿実績をiPhone内に記録し、15日単位で振り返る投稿PDCAツールです。" />
+  <meta name="theme-color" content="#7b2848" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="投稿PDCA" />
+  <link rel="canonical" href="https://keng079s.github.io/keng-tools-public/tools/hotpepper-post-manager.html" />
+  <title>Hot Pepper 投稿PDCA</title>
+  <style>
+    :root {
+      --bg: #fbf7f9;
+      --panel: #ffffff;
+      --ink: #2c2026;
+      --muted: #74656d;
+      --line: #e4d7dd;
+      --accent: #7b2848;
+      --accent-dark: #591b34;
+      --accent-soft: #f5e4eb;
+      --ok: #236947;
+      --ok-soft: #e4f3eb;
+      --warn: #855417;
+      --warn-soft: #fff3dd;
+      --danger: #9b2d30;
+      --shadow: 0 12px 32px rgba(77, 34, 51, .08);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(145deg, #fffafc 0%, #f6eef2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 14px max(56px, env(safe-area-inset-bottom));
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--accent);
+    }
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--accent-dark);
+      background: var(--panel);
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .hero {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+    h1 { margin: 0; font-size: clamp(30px, 8vw, 50px); line-height: 1.15; }
+    .lead { margin: 12px 0 0; color: var(--muted); line-height: 1.8; }
+    .online-note {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--ok-soft);
+      color: var(--ok);
+    }
+    .online-note.warning { background: var(--warn-soft); color: var(--warn); }
+    .online-note strong { line-height: 1.5; }
+    .url-text { margin: 0; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+
+    .section { margin-top: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); }
+    .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+    h2 { margin: 0; font-size: 22px; line-height: 1.35; }
+    h3 { margin: 0; font-size: 18px; }
+    .section-copy { margin: 5px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .grid { display: grid; gap: 14px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    label { display: grid; gap: 7px; color: var(--accent-dark); font-size: 14px; font-weight: 800; }
+    input, select, textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 12px;
+      border: 1px solid #cdbbc3;
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+      font-size: 16px;
+    }
+    textarea { min-height: 96px; resize: vertical; line-height: 1.65; }
+    input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible { outline: 3px solid rgba(123, 40, 72, .24); outline-offset: 2px; }
+    .helper { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 11px 16px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--accent);
+      cursor: pointer;
+      font-weight: 900;
+      text-decoration: none;
+      touch-action: manipulation;
+    }
+    .button.secondary { border-color: var(--line); color: var(--accent-dark); background: #fff; }
+    .button.danger { border-color: #edc7c8; color: var(--danger); background: #fff7f7; }
+    .button:disabled { cursor: not-allowed; opacity: .55; }
+    .status { min-height: 24px; margin: 12px 0 0; color: var(--ok); font-size: 14px; font-weight: 800; line-height: 1.65; }
+    .status.error { color: var(--danger); }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .metric { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fffafb; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .metric strong { display: block; margin-top: 4px; color: var(--accent-dark); font-size: 26px; line-height: 1.2; }
+    .summary-text { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--accent-soft); line-height: 1.75; white-space: pre-wrap; }
+
+    .records { display: grid; gap: 12px; }
+    .record { padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .record-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .record-title { margin: 0; font-size: 17px; line-height: 1.5; overflow-wrap: anywhere; }
+    .record-meta { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .record-numbers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill { padding: 5px 9px; border-radius: 999px; color: var(--accent-dark); background: var(--accent-soft); font-size: 12px; font-weight: 800; }
+    .record-note { margin: 10px 0 0; color: var(--muted); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .icon-button { min-width: 44px; min-height: 44px; border: 1px solid #edc7c8; border-radius: 10px; color: var(--danger); background: #fff7f7; cursor: pointer; font-weight: 900; }
+    .empty { margin: 0; padding: 18px; border: 1px dashed #cdbbc3; border-radius: 12px; color: var(--muted); text-align: center; line-height: 1.7; }
+    .safety { margin: 18px 0 0; padding: 15px; border: 1px solid #ecd7bd; border-radius: 12px; color: #6f4a23; background: #fff8ec; font-size: 14px; line-height: 1.75; }
+    .backup-input { display: none; }
+    .footer { margin-top: 22px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.7; }
+
+    @media (max-width: 720px) {
+      .hero, .section { padding: 17px; }
+      .grid.two, .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section-heading { display: block; }
+    }
+    @media (max-width: 460px) {
+      .topbar { align-items: flex-start; }
+      .brand span:last-child { display: none; }
+      .actions .button { width: 100%; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <nav class="topbar" aria-label="ページ上部">
+      <div class="brand"><span class="mark">PD</span><span>Hot Pepper 投稿PDCA</span></div>
+      <a class="home-link" href="../index.html">ツール一覧へ</a>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">IPHONE-ONLY OPERATION</p>
+      <h1>PCを閉じても、iPhoneだけで運用。</h1>
+      <p class="lead">Hot Pepper Beautyへの投稿内容と集計値を記録し、直近15日間の結果から次の投稿案を考えるための補助ツールです。</p>
+      <div class="online-note" id="accessNote">
+        <strong id="accessTitle">公開URLを確認しています</strong>
+        <p class="url-text" id="publicUrl">https://keng079s.github.io/keng-tools-public/tools/hotpepper-post-manager.html</p>
+        <div class="actions">
+          <button class="button secondary" type="button" id="copyUrlButton">このページのURLをコピー</button>
+          <a class="button" id="openPublicButton" href="https://keng079s.github.io/keng-tools-public/tools/hotpepper-post-manager.html">公開版を開く</a>
+        </div>
+      </div>
+      <p class="status" id="accessStatus" role="status" aria-live="polite"></p>
+    </header>
+
+    <section class="section" aria-labelledby="recordHeading">
+      <div class="section-heading">
+        <div>
+          <h2 id="recordHeading">投稿実績を記録</h2>
+          <p class="section-copy">氏名・電話番号などの顧客情報は入力せず、投稿テーマと合計値だけを保存してください。</p>
+        </div>
+      </div>
+      <form id="recordForm">
+        <div class="grid two">
+          <label>投稿日
+            <input id="postDate" name="postDate" type="date" required />
+          </label>
+          <label>投稿種別
+            <select id="postType" name="postType">
+              <option value="ブログ">ブログ</option>
+              <option value="スタイル">スタイル</option>
+              <option value="クーポン">クーポン</option>
+              <option value="フォト">フォト</option>
+            </select>
+          </label>
+          <label>狙い
+            <select id="goal" name="goal">
+              <option value="新規予約">新規予約</option>
+              <option value="再来店">再来店</option>
+              <option value="指名予約">指名予約</option>
+              <option value="認知">認知</option>
+            </select>
+          </label>
+          <label>投稿テーマ
+            <input id="theme" name="theme" type="text" maxlength="80" placeholder="例：春のショートヘア" required />
+          </label>
+          <label>閲覧数（未入力は0）
+            <input id="views" name="views" type="number" inputmode="numeric" min="0" step="1" placeholder="0" />
+          </label>
+          <label>予約数（未入力は0）
+            <input id="bookings" name="bookings" type="number" inputmode="numeric" min="0" step="1" placeholder="0" />
+          </label>
+        </div>
+        <label style="margin-top:14px">振り返りメモ
+          <textarea id="memo" name="memo" maxlength="300" placeholder="例：写真1枚目の明るさを変えて反応を比較する"></textarea>
+        </label>
+        <p class="helper">このツールからHot Pepper Beautyへの投稿やログインは行いません。数値は管理画面で確認した合計値を手入力してください。</p>
+        <div class="actions">
+          <button class="button" type="submit">この実績を保存</button>
+          <button class="button secondary" type="button" id="ideaButton">次の投稿案を作る</button>
+        </div>
+        <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="section" aria-labelledby="summaryHeading">
+      <div class="section-heading">
+        <div>
+          <h2 id="summaryHeading">直近15日間のまとめ</h2>
+          <p class="section-copy">保存済みデータから端末内で計算します。</p>
+        </div>
+      </div>
+      <div class="metrics" aria-label="直近15日間の集計">
+        <div class="metric"><span>投稿数</span><strong id="postCount">0</strong></div>
+        <div class="metric"><span>閲覧数</span><strong id="viewCount">0</strong></div>
+        <div class="metric"><span>予約数</span><strong id="bookingCount">0</strong></div>
+        <div class="metric"><span>予約率</span><strong id="bookingRate">0%</strong></div>
+      </div>
+      <div class="summary-text" id="summaryText">まだ実績がありません。最初の投稿を記録すると、ここに振り返りが表示されます。</div>
+      <div class="actions">
+        <button class="button secondary" type="button" id="copySummaryButton">まとめをコピー</button>
+      </div>
+      <p class="status" id="summaryStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section" aria-labelledby="historyHeading">
+      <div class="section-heading">
+        <div>
+          <h2 id="historyHeading">保存した実績</h2>
+          <p class="section-copy">新しい順に表示します。記録はこのブラウザ内だけに保存されます。</p>
+        </div>
+      </div>
+      <div class="records" id="recordList"></div>
+      <div class="actions">
+        <button class="button secondary" type="button" id="exportButton">JSONでバックアップ</button>
+        <button class="button secondary" type="button" id="importButton">バックアップを復元</button>
+        <button class="button danger" type="button" id="clearButton">全データを削除</button>
+      </div>
+      <input class="backup-input" id="importFile" type="file" accept="application/json,.json" />
+      <p class="status" id="historyStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <p class="safety">安全運用：顧客名、連絡先、予約内容、認証情報は入力しないでください。Safariの「履歴とWebサイトデータ」を削除すると端末内記録も消える可能性があるため、定期的にJSONバックアップを保存してください。</p>
+    <footer class="footer">端末内保存 / 外部送信なし / 自動投稿なし</footer>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PUBLIC_URL = "https://keng079s.github.io/keng-tools-public/tools/hotpepper-post-manager.html";
+      const STORAGE_KEY = "keng-hotpepper-post-manager-v1";
+      const elements = Object.fromEntries([
+        "accessNote", "accessTitle", "publicUrl", "copyUrlButton", "openPublicButton", "accessStatus",
+        "recordForm", "postDate", "postType", "goal", "theme", "views", "bookings", "memo", "ideaButton", "formStatus",
+        "postCount", "viewCount", "bookingCount", "bookingRate", "summaryText", "copySummaryButton", "summaryStatus",
+        "recordList", "exportButton", "importButton", "importFile", "clearButton", "historyStatus"
+      ].map((id) => [id, document.getElementById(id)]));
+
+      let records = [];
+
+      function setStatus(element, message, isError = false) {
+        element.textContent = message;
+        element.classList.toggle("error", isError);
+      }
+
+      function localDateString(date = new Date()) {
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+      }
+
+      function safeNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number >= 0 ? Math.floor(number) : 0;
+      }
+
+      function normalizeRecord(value) {
+        if (!value || typeof value !== "object") return null;
+        const date = /^\d{4}-\d{2}-\d{2}$/.test(String(value.date || "")) ? String(value.date) : "";
+        const theme = String(value.theme || "").trim().slice(0, 80);
+        if (!date || !theme) return null;
+        return {
+          id: String(value.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+          date,
+          type: ["ブログ", "スタイル", "クーポン", "フォト"].includes(value.type) ? value.type : "ブログ",
+          goal: ["新規予約", "再来店", "指名予約", "認知"].includes(value.goal) ? value.goal : "新規予約",
+          theme,
+          views: safeNumber(value.views),
+          bookings: safeNumber(value.bookings),
+          memo: String(value.memo || "").trim().slice(0, 300)
+        };
+      }
+
+      function loadRecords() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          records = Array.isArray(parsed) ? parsed.map(normalizeRecord).filter(Boolean) : [];
+        } catch (error) {
+          console.error("保存データの読み込みに失敗しました。", error);
+          records = [];
+          setStatus(elements.historyStatus, "保存データを読み込めませんでした。バックアップがあれば復元してください。", true);
+        }
+      }
+
+      function saveRecords() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+          return true;
+        } catch (error) {
+          console.error("保存に失敗しました。", error);
+          setStatus(elements.formStatus, "このブラウザでは保存できません。Safariのプライベートブラウズ設定や空き容量を確認してください。", true);
+          return false;
+        }
+      }
+
+      async function copyText(text, statusElement, successMessage) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const field = document.createElement("textarea");
+            field.value = text;
+            field.setAttribute("readonly", "");
+            field.style.position = "fixed";
+            field.style.opacity = "0";
+            document.body.appendChild(field);
+            field.focus();
+            field.select();
+            const copied = document.execCommand("copy");
+            field.remove();
+            if (!copied) throw new Error("copy command failed");
+          }
+          setStatus(statusElement, successMessage);
+        } catch (error) {
+          console.error("コピーに失敗しました。", error);
+          window.prompt("下の文章を長押ししてコピーしてください。", text);
+          setStatus(statusElement, "自動コピーできないため、手動コピー欄を表示しました。", true);
+        }
+      }
+
+      function recentRecords() {
+        const today = new Date(`${localDateString()}T00:00:00`);
+        const firstDay = new Date(today);
+        firstDay.setDate(firstDay.getDate() - 14);
+        return records.filter((record) => {
+          const date = new Date(`${record.date}T00:00:00`);
+          return date >= firstDay && date <= today;
+        });
+      }
+
+      function buildSummary() {
+        const recent = recentRecords();
+        const views = recent.reduce((total, record) => total + record.views, 0);
+        const bookings = recent.reduce((total, record) => total + record.bookings, 0);
+        const rate = views > 0 ? (bookings / views) * 100 : 0;
+        const best = [...recent].sort((a, b) => b.bookings - a.bookings || b.views - a.views)[0];
+
+        elements.postCount.textContent = String(recent.length);
+        elements.viewCount.textContent = views.toLocaleString("ja-JP");
+        elements.bookingCount.textContent = bookings.toLocaleString("ja-JP");
+        elements.bookingRate.textContent = `${rate.toFixed(1)}%`;
+
+        if (!recent.length) {
+          elements.summaryText.textContent = "まだ実績がありません。最初の投稿を記録すると、ここに振り返りが表示されます。";
+          return elements.summaryText.textContent;
+        }
+
+        const lines = [
+          "【Hot Pepper 投稿PDCA｜直近15日】",
+          `投稿数：${recent.length}件`,
+          `閲覧数：${views.toLocaleString("ja-JP")}回`,
+          `予約数：${bookings.toLocaleString("ja-JP")}件`,
+          `予約率：${rate.toFixed(1)}%`
+        ];
+        if (best) lines.push(`反応が良かったテーマ：${best.theme}（${best.type}）`);
+        lines.push(bookings > 0 ? "次の一手：反応が良かったテーマを、写真やタイトルを変えてもう一度試す。" : "次の一手：テーマを1つに絞り、最初の写真とタイトルを変えて比較する。");
+        elements.summaryText.textContent = lines.join("\n");
+        return elements.summaryText.textContent;
+      }
+
+      function renderRecords() {
+        elements.recordList.replaceChildren();
+        const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+        if (!sorted.length) {
+          const empty = document.createElement("p");
+          empty.className = "empty";
+          empty.textContent = "保存済みの実績はありません。上のフォームから最初の記録を追加してください。";
+          elements.recordList.appendChild(empty);
+          buildSummary();
+          return;
+        }
+
+        sorted.forEach((record) => {
+          const article = document.createElement("article");
+          article.className = "record";
+
+          const head = document.createElement("div");
+          head.className = "record-head";
+          const heading = document.createElement("div");
+          const title = document.createElement("h3");
+          title.className = "record-title";
+          title.textContent = record.theme;
+          const meta = document.createElement("p");
+          meta.className = "record-meta";
+          meta.textContent = `${record.date} / ${record.type} / ${record.goal}`;
+          heading.append(title, meta);
+
+          const remove = document.createElement("button");
+          remove.className = "icon-button";
+          remove.type = "button";
+          remove.textContent = "削除";
+          remove.setAttribute("aria-label", `${record.theme}の記録を削除`);
+          remove.addEventListener("click", () => {
+            if (!window.confirm(`「${record.theme}」の記録を削除しますか？`)) return;
+            records = records.filter((item) => item.id !== record.id);
+            if (saveRecords()) {
+              renderRecords();
+              setStatus(elements.historyStatus, "記録を削除しました。");
+            }
+          });
+          head.append(heading, remove);
+
+          const numbers = document.createElement("div");
+          numbers.className = "record-numbers";
+          [`閲覧 ${record.views}`, `予約 ${record.bookings}`].forEach((text) => {
+            const pill = document.createElement("span");
+            pill.className = "pill";
+            pill.textContent = text;
+            numbers.appendChild(pill);
+          });
+          article.append(head, numbers);
+          if (record.memo) {
+            const memo = document.createElement("p");
+            memo.className = "record-note";
+            memo.textContent = record.memo;
+            article.appendChild(memo);
+          }
+          elements.recordList.appendChild(article);
+        });
+        buildSummary();
+      }
+
+      function generateIdea() {
+        const type = elements.postType.value;
+        const goal = elements.goal.value;
+        const theme = elements.theme.value.trim() || "季節のおすすめスタイル";
+        const suggestionByGoal = {
+          "新規予約": "悩み→施術ポイント→予約前に知ってほしいことの順で、初めての方にも分かる内容にする。",
+          "再来店": "前回からの変化と次回来店の目安を入れ、継続するメリットを伝える。",
+          "指名予約": "得意な技術と仕上がりのこだわりを具体的にし、担当する理由を伝える。",
+          "認知": "一目で内容が伝わる写真と短いタイトルを使い、専門用語を減らす。"
+        };
+        elements.memo.value = `次回案：${theme}を「${type}」で再構成。${suggestionByGoal[goal]}`;
+        setStatus(elements.formStatus, "次の投稿案をメモ欄に作りました。内容を確認してから保存してください。");
+      }
+
+      function downloadBackup() {
+        const payload = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), records }, null, 2);
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `hotpepper-pdca-${localDateString()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        setStatus(elements.historyStatus, "バックアップをダウンロードしました。iPhoneの「ファイル」に保存してください。");
+      }
+
+      function restoreBackup(file) {
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || ""));
+            const source = Array.isArray(parsed) ? parsed : parsed.records;
+            if (!Array.isArray(source)) throw new Error("invalid backup");
+            const restored = source.map(normalizeRecord).filter(Boolean);
+            if (source.length && !restored.length) throw new Error("no valid records");
+            if (!window.confirm(`バックアップの${restored.length}件で現在の記録を置き換えますか？`)) return;
+            records = restored;
+            if (saveRecords()) {
+              renderRecords();
+              setStatus(elements.historyStatus, `${restored.length}件を復元しました。`);
+            }
+          } catch (error) {
+            console.error("復元に失敗しました。", error);
+            setStatus(elements.historyStatus, "このファイルは復元できません。投稿PDCAから保存したJSONか確認してください。", true);
+          } finally {
+            elements.importFile.value = "";
+          }
+        });
+        reader.readAsText(file);
+      }
+
+      function updateAccessNote() {
+        const isPublicPage = location.protocol === "https:" && location.hostname === "keng079s.github.io";
+        elements.accessNote.classList.toggle("warning", !isPublicPage);
+        elements.accessTitle.textContent = isPublicPage
+          ? "公開版で開いています。PCの電源は不要です。"
+          : "一時表示です。iPhoneでは下の公開版を開いてください。";
+        elements.openPublicButton.hidden = isPublicPage;
+      }
+
+      elements.recordForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const record = normalizeRecord({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          date: elements.postDate.value,
+          type: elements.postType.value,
+          goal: elements.goal.value,
+          theme: elements.theme.value,
+          views: elements.views.value,
+          bookings: elements.bookings.value,
+          memo: elements.memo.value
+        });
+        if (!record) {
+          setStatus(elements.formStatus, "投稿日と投稿テーマを入力してください。", true);
+          return;
+        }
+        records.push(record);
+        if (!saveRecords()) return;
+        elements.recordForm.reset();
+        elements.postDate.value = localDateString();
+        renderRecords();
+        setStatus(elements.formStatus, "実績をこのiPhone内に保存しました。");
+      });
+
+      elements.ideaButton.addEventListener("click", generateIdea);
+      elements.copyUrlButton.addEventListener("click", () => copyText(PUBLIC_URL, elements.accessStatus, "公開URLをコピーしました。"));
+      elements.copySummaryButton.addEventListener("click", () => copyText(buildSummary(), elements.summaryStatus, "15日間のまとめをコピーしました。"));
+      elements.exportButton.addEventListener("click", downloadBackup);
+      elements.importButton.addEventListener("click", () => elements.importFile.click());
+      elements.importFile.addEventListener("change", () => {
+        const [file] = elements.importFile.files;
+        if (file) restoreBackup(file);
+      });
+      elements.clearButton.addEventListener("click", () => {
+        if (!records.length) {
+          setStatus(elements.historyStatus, "削除する記録はありません。", true);
+          return;
+        }
+        if (!window.confirm("保存したすべての投稿実績を削除しますか？この操作は元に戻せません。")) return;
+        records = [];
+        if (saveRecords()) {
+          renderRecords();
+          setStatus(elements.historyStatus, "すべての記録を削除しました。");
+        }
+      });
+
+      elements.postDate.value = localDateString();
+      elements.publicUrl.textContent = PUBLIC_URL;
+      updateAccessNote();
+      loadRecords();
+      renderRecords();
+    })();
+  </script>
+</body>
+</html>

@@ -9,6 +9,7 @@ https://keng079s.github.io/keng-tools-public/
 ## 開くページ
 
 - `index.html`: 共有用トップページ
+- `tools/hotpepper-post-manager.html`: Hot Pepper 投稿PDCA
 - `tools/iphone-storage-organizer.html`: iPhoneストレージ整理ナビ
 - `tools/ark-commission-calculator.html`: ARK歩合計算機
 - `portfolio.html`: ポートフォリオ
@@ -22,13 +23,20 @@ https://keng079s.github.io/keng-tools-public/
 - 入力値と進捗はSafariの端末内ストレージだけに保存
 - iPhone内の写真・動画・アプリを自動削除しない安全設計
 
+## Hot Pepper 投稿PDCA
+
+- 投稿テーマ、投稿種別、閲覧数、予約数をiPhone内に保存
+- 直近15日間の投稿数、閲覧数、予約数、予約率を自動計算
+- 次の投稿案と共有用まとめを作成
+- JSONバックアップと復元に対応
+- Hot Pepper Beautyへの自動ログイン・自動投稿は行わない
+
 ## 使い方
 
 1. 公開URLをSafariで開きます。
-2. `iPhone整理を始める` を押します。
-3. `設定 → 一般 → iPhoneストレージ` の現在値を入力します。
-4. 安全確認チェックに沿って、iPhone側で整理します。
-5. よく使う場合はSafariの共有ボタンから「ホーム画面に追加」します。
+2. 使うツールを押します。
+3. Hot Pepper 投稿PDCAでは、顧客情報を入れずに投稿テーマと合計値だけを記録します。
+4. よく使うツールはSafariの共有ボタンから「ホーム画面に追加」します。
 
 ## 方針
 
